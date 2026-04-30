@@ -4384,13 +4384,9 @@ func (kc *kanboardClient) getColumnHandler(ctx context.Context, request mcp.Call
 }
 
 func (kc *kanboardClient) createColumnHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	projectIdStr, err := request.RequireString("project_id")
+	projectId, err := request.RequireInt("project_id")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
-	}
-	projectId, err := strconv.Atoi(projectIdStr)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Invalid project_id: %v", err)), nil
 	}
 	title, err := request.RequireString("title")
 	if err != nil {
@@ -4481,13 +4477,9 @@ func (kc *kanboardClient) deleteColumnHandler(ctx context.Context, request mcp.C
 }
 
 func (kc *kanboardClient) reorderColumnsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	projectIdStr, err := request.RequireString("project_id")
+	projectId, err := request.RequireInt("project_id")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
-	}
-	projectId, err := strconv.Atoi(projectIdStr)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Invalid project_id: %v", err)), nil
 	}
 	columnId, err := request.RequireInt("column_id")
 	if err != nil {
@@ -4518,13 +4510,9 @@ func (kc *kanboardClient) reorderColumnsHandler(ctx context.Context, request mcp
 }
 
 func (kc *kanboardClient) getCategoriesHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	projectIdStr, err := request.RequireString("project_id")
+	projectId, err := request.RequireInt("project_id")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
-	}
-	projectId, err := strconv.Atoi(projectIdStr)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Invalid project_id: %v", err)), nil
 	}
 
 	params := map[string]int{"project_id": projectId}
@@ -4542,13 +4530,9 @@ func (kc *kanboardClient) getCategoriesHandler(ctx context.Context, request mcp.
 }
 
 func (kc *kanboardClient) createCategoryHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	projectIdStr, err := request.RequireString("project_id")
+	projectId, err := request.RequireInt("project_id")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
-	}
-	projectId, err := strconv.Atoi(projectIdStr)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Invalid project_id: %v", err)), nil
 	}
 
 	// Check permission for creating categories (project-level)
