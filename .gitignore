@@ -21,3 +21,6 @@ kanboard-mcp-*
 .idea/
 
 .specstory/
+
+# Claude Code per-machine settings
+.claude/
