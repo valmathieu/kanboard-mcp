@@ -500,6 +500,11 @@ func (rbac *RBACManager) CheckPermission(userCtx *UserContext, projectID *int, p
 	if projectID != nil {
 		// Project-level permission check
 		accessMap = rbac.config.AccessMaps.APIProject
+		if userCtx.IsAdmin {
+			// app-admin can act on any project regardless of explicit
+			// project-role assignment, mirroring Kanboard's UI behavior.
+			return true
+		}
 		userRole = userCtx.ProjectRoles[*projectID]
 		if userRole == "" {
 			userRole = accessMap.DefaultRole
