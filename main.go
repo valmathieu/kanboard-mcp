@@ -7517,8 +7517,8 @@ func (kc *kanboardClient) closeTaskHandler(ctx context.Context, request mcp.Call
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"task_id": taskId, "status": "closed"}
-	result, err := kc.callKanboardAPI(ctx, "updateTask", params)
+	params := map[string]interface{}{"task_id": taskId}
+	result, err := kc.callKanboardAPI(ctx, "closeTask", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to close task: %v", err)), nil
 	}
