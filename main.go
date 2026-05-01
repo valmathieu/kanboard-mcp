@@ -4731,7 +4731,7 @@ func (kc *kanboardClient) setTaskDueDateHandler(ctx context.Context, request mcp
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]interface{}{"task_id": taskId, "date_due": dueDate}
+	params := map[string]interface{}{"id": taskId, "date_due": dueDate}
 	result, err := kc.callKanboardAPI(ctx, "updateTask", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to set task due date: %v", err)), nil
