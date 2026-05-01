@@ -4703,8 +4703,8 @@ func (kc *kanboardClient) assignTaskHandler(ctx context.Context, request mcp.Cal
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]int{"task_id": taskId, "owner_id": userId}
-	result, err := kc.callKanboardAPI(ctx, "assignTask", params)
+	params := map[string]int{"id": taskId, "owner_id": userId}
+	result, err := kc.callKanboardAPI(ctx, "updateTask", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to assign task: %v", err)), nil
 	}
