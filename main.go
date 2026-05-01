@@ -2502,8 +2502,8 @@ func main() {
 			mcp.Required(),
 			mcp.Description("Name of the tag"),
 		),
-		mcp.WithNumber("color_id",
-			mcp.Description("ID of the color for the tag (optional)"),
+		mcp.WithString("color_id",
+			mcp.Description("Kanboard color identifier for the tag (e.g. blue, red, green, yellow). See get_color_list for the full set."),
 		),
 	)
 	s.AddTool(tool, kbClient.createTagHandler)
@@ -2518,8 +2518,8 @@ func main() {
 			mcp.Required(),
 			mcp.Description("New name for the tag"),
 		),
-		mcp.WithNumber("color_id",
-			mcp.Description("New color ID for the tag (optional)"),
+		mcp.WithString("color_id",
+			mcp.Description("New Kanboard color identifier for the tag (e.g. blue, red, green, yellow). See get_color_list for the full set."),
 		),
 	)
 	s.AddTool(tool, kbClient.updateTagHandler)
@@ -6338,8 +6338,8 @@ func (kc *kanboardClient) createTagHandler(ctx context.Context, request mcp.Call
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	params := map[string]interface{}{"project_id": projectId, "tag": tag}
-	colorId := request.GetInt("color_id", 0)
-	if colorId != 0 {
+	colorId := request.GetString("color_id", "")
+	if colorId != "" {
 		params["color_id"] = colorId
 	}
 	result, err := kc.callKanboardAPI(ctx, "createTag", params)
@@ -6363,8 +6363,8 @@ func (kc *kanboardClient) updateTagHandler(ctx context.Context, request mcp.Call
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	params := map[string]interface{}{"id": tagId, "name": tag}
-	colorId := request.GetInt("color_id", 0)
-	if colorId != 0 {
+	colorId := request.GetString("color_id", "")
+	if colorId != "" {
 		params["color_id"] = colorId
 	}
 	result, err := kc.callKanboardAPI(ctx, "updateTag", params)
