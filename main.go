@@ -4440,7 +4440,7 @@ func (kc *kanboardClient) updateColumnHandler(ctx context.Context, request mcp.C
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]interface{}{"id": columnId, "title": title}
+	params := map[string]interface{}{"column_id": columnId, "title": title}
 
 	taskLimit := request.GetInt("task_limit", 0)
 	if taskLimit != 0 {
