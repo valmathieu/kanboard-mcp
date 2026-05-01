@@ -4188,7 +4188,7 @@ func (kc *kanboardClient) getExternalTaskLinkTypesHandler(ctx context.Context, _
 }
 
 func (kc *kanboardClient) getExternalTaskLinkProviderDependenciesHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	providerName, err := request.RequireString("provider_name")
+	providerName, err := request.RequireString("provider")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
