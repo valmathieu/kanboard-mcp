@@ -4504,7 +4504,7 @@ func (kc *kanboardClient) reorderColumnsHandler(ctx context.Context, request mcp
 		"position":   position,
 	}
 
-	result, err := kc.callKanboardAPI(ctx, "moveColumnPosition", params)
+	result, err := kc.callKanboardAPI(ctx, "changeColumnPosition", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to reorder columns: %v", err)), nil
 	}
