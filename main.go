@@ -2432,7 +2432,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.hasSubtaskTimerHandler)
@@ -2444,7 +2445,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.setSubtaskStartTimeHandler)
@@ -2456,7 +2458,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.setSubtaskEndTimeHandler)
@@ -2468,7 +2471,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.getSubtaskTimeSpentHandler)
@@ -6216,11 +6220,11 @@ func (kc *kanboardClient) hasSubtaskTimerHandler(ctx context.Context, request mc
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "hasSubtaskTimer", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6237,11 +6241,11 @@ func (kc *kanboardClient) setSubtaskStartTimeHandler(ctx context.Context, reques
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "setSubtaskStartTime", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6258,11 +6262,11 @@ func (kc *kanboardClient) setSubtaskEndTimeHandler(ctx context.Context, request 
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "setSubtaskEndTime", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6279,11 +6283,11 @@ func (kc *kanboardClient) getSubtaskTimeSpentHandler(ctx context.Context, reques
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "getSubtaskTimeSpent", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
