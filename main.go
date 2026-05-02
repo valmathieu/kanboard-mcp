@@ -2437,7 +2437,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.hasSubtaskTimerHandler)
@@ -2449,7 +2450,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.setSubtaskStartTimeHandler)
@@ -2461,7 +2463,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.setSubtaskEndTimeHandler)
@@ -2473,7 +2476,8 @@ func main() {
 			mcp.Description("ID of the subtask"),
 		),
 		mcp.WithNumber("user_id",
-			mcp.Description("ID of the user (optional)"),
+			mcp.Required(),
+			mcp.Description("ID of the user"),
 		),
 	)
 	s.AddTool(tool, kbClient.getSubtaskTimeSpentHandler)
@@ -2503,8 +2507,8 @@ func main() {
 			mcp.Required(),
 			mcp.Description("Name of the tag"),
 		),
-		mcp.WithNumber("color_id",
-			mcp.Description("ID of the color for the tag (optional)"),
+		mcp.WithString("color_id",
+			mcp.Description("Kanboard color identifier for the tag (e.g. blue, red, green, yellow). See get_color_list for the full set."),
 		),
 	)
 	s.AddTool(tool, kbClient.createTagHandler)
@@ -2519,8 +2523,8 @@ func main() {
 			mcp.Required(),
 			mcp.Description("New name for the tag"),
 		),
-		mcp.WithNumber("color_id",
-			mcp.Description("New color ID for the tag (optional)"),
+		mcp.WithString("color_id",
+			mcp.Description("New Kanboard color identifier for the tag (e.g. blue, red, green, yellow). See get_color_list for the full set."),
 		),
 	)
 	s.AddTool(tool, kbClient.updateTagHandler)
@@ -4193,7 +4197,7 @@ func (kc *kanboardClient) getExternalTaskLinkTypesHandler(ctx context.Context, _
 }
 
 func (kc *kanboardClient) getExternalTaskLinkProviderDependenciesHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	providerName, err := request.RequireString("provider_name")
+	providerName, err := request.RequireString("provider")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
@@ -4437,7 +4441,7 @@ func (kc *kanboardClient) updateColumnHandler(ctx context.Context, request mcp.C
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]interface{}{"id": columnId, "title": title}
+	params := map[string]interface{}{"column_id": columnId, "title": title}
 
 	taskLimit := request.GetInt("task_limit", 0)
 	if taskLimit != 0 {
@@ -4692,8 +4696,8 @@ func (kc *kanboardClient) assignTaskHandler(ctx context.Context, request mcp.Cal
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]int{"task_id": taskId, "owner_id": userId}
-	result, err := kc.callKanboardAPI(ctx, "assignTask", params)
+	params := map[string]int{"id": taskId, "owner_id": userId}
+	result, err := kc.callKanboardAPI(ctx, "updateTask", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to assign task: %v", err)), nil
 	}
@@ -4716,7 +4720,7 @@ func (kc *kanboardClient) setTaskDueDateHandler(ctx context.Context, request mcp
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := map[string]interface{}{"task_id": taskId, "date_due": dueDate}
+	params := map[string]interface{}{"id": taskId, "date_due": dueDate}
 	result, err := kc.callKanboardAPI(ctx, "updateTask", params)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to set task due date: %v", err)), nil
@@ -6205,11 +6209,11 @@ func (kc *kanboardClient) hasSubtaskTimerHandler(ctx context.Context, request mc
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "hasSubtaskTimer", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6226,11 +6230,11 @@ func (kc *kanboardClient) setSubtaskStartTimeHandler(ctx context.Context, reques
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "setSubtaskStartTime", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6247,11 +6251,11 @@ func (kc *kanboardClient) setSubtaskEndTimeHandler(ctx context.Context, request 
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "setSubtaskEndTime", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6268,11 +6272,11 @@ func (kc *kanboardClient) getSubtaskTimeSpentHandler(ctx context.Context, reques
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	params := map[string]interface{}{"subtask_id": subtaskId}
-	userId := request.GetInt("user_id", 0)
-	if userId != 0 {
-		params["user_id"] = userId
+	userId, err := request.RequireInt("user_id")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
 	}
+	params := map[string]interface{}{"subtask_id": subtaskId, "user_id": userId}
 	result, err := kc.callKanboardAPI(ctx, "getSubtaskTimeSpent", params)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -6323,8 +6327,8 @@ func (kc *kanboardClient) createTagHandler(ctx context.Context, request mcp.Call
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	params := map[string]interface{}{"project_id": projectId, "tag": tag}
-	colorId := request.GetInt("color_id", 0)
-	if colorId != 0 {
+	colorId := request.GetString("color_id", "")
+	if colorId != "" {
 		params["color_id"] = colorId
 	}
 	result, err := kc.callKanboardAPI(ctx, "createTag", params)
@@ -6348,8 +6352,8 @@ func (kc *kanboardClient) updateTagHandler(ctx context.Context, request mcp.Call
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	params := map[string]interface{}{"id": tagId, "name": tag}
-	colorId := request.GetInt("color_id", 0)
-	if colorId != 0 {
+	colorId := request.GetString("color_id", "")
+	if colorId != "" {
 		params["color_id"] = colorId
 	}
 	result, err := kc.callKanboardAPI(ctx, "updateTag", params)
