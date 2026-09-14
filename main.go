@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -3023,6 +3024,13 @@ func (kc *kanboardClient) callKanboardAPIWithConfig(ctx context.Context, method 
 	// Create HTTP client with timeout
 	client := &http.Client{
 		Timeout: config.Timeout,
+	}
+
+	// Opt-in for self-signed certificates (e.g. Kanboard reached over a VPN IP)
+	if os.Getenv("KANBOARD_INSECURE_SKIP_VERIFY") == "true" {
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		client.Transport = transport
 	}
 
 	var lastErr error

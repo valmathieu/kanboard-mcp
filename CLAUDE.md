@@ -82,6 +82,8 @@ activity logs all work correctly.
 - `KANBOARD_SKIP_RBAC=true` — bypass MCP-side RBAC entirely. Kanboard's own
   permissions still apply server-side. Useful when the MCP RBAC layer is
   too strict for solo use.
+- `KANBOARD_INSECURE_SKIP_VERIFY=true` — accept self-signed / mismatched TLS
+  certificates. Only for trusted links (e.g. Kanboard reached over Tailscale).
 - `KANBOARD_USER_APP_ROLES`, `KANBOARD_USER_PROJECT_ROLES` — manual role
   pinning fallbacks, only consulted after `getMe` succeeds.
 
