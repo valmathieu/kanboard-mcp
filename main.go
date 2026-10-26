@@ -2989,6 +2989,32 @@ func (kc *kanboardClient) callKanboardAPI(ctx context.Context, method string, pa
 	return kc.callKanboardAPIWithConfig(ctx, method, params, DefaultRequestConfig())
 }
 
+// sensitiveUserFields are credential fields Kanboard returns on user objects
+// that must never be echoed back to the MCP client.
+var sensitiveUserFields = []string{
+	"api_access_token",
+	"token",
+	"credentials_fingerprint",
+	"password",
+	"twofactor_secret",
+}
+
+// redactUserSecrets strips credential fields from a user object or a list of
+// user objects returned by getMe, getUser, getUserByName or getAllUsers.
+func redactUserSecrets(result interface{}) interface{} {
+	switch v := result.(type) {
+	case map[string]interface{}:
+		for _, field := range sensitiveUserFields {
+			delete(v, field)
+		}
+	case []interface{}:
+		for _, item := range v {
+			redactUserSecrets(item)
+		}
+	}
+	return result
+}
+
 func (kc *kanboardClient) callKanboardAPIWithConfig(ctx context.Context, method string, params interface{}, config *RequestConfig) (interface{}, error) {
 	if config == nil {
 		config = DefaultRequestConfig()
@@ -3956,7 +3982,7 @@ func (kc *kanboardClient) getUsersHandler(ctx context.Context, _ mcp.CallToolReq
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	resultBytes, err := json.MarshalIndent(result, "", "  ")
+	resultBytes, err := json.MarshalIndent(redactUserSecrets(result), "", "  ")
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to marshal API result: %v", err)), nil
 	}
@@ -3975,7 +4001,7 @@ func (kc *kanboardClient) getUserByNameHandler(ctx context.Context, request mcp.
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to get user by name: %v", err)), nil
 	}
 
-	resultBytes, err := json.MarshalIndent(result, "", "  ")
+	resultBytes, err := json.MarshalIndent(redactUserSecrets(result), "", "  ")
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to marshal API result: %v", err)), nil
 	}
@@ -4096,7 +4122,7 @@ func (kc *kanboardClient) getMeHandler(ctx context.Context, _ mcp.CallToolReques
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	resultBytes, err := json.MarshalIndent(result, "", "  ")
+	resultBytes, err := json.MarshalIndent(redactUserSecrets(result), "", "  ")
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to marshal API result: %v", err)), nil
 	}
@@ -7668,7 +7694,7 @@ func (kc *kanboardClient) getUserHandler(ctx context.Context, request mcp.CallTo
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to get user: %v", err)), nil
 	}
 
-	resultBytes, err := json.MarshalIndent(result, "", "  ")
+	resultBytes, err := json.MarshalIndent(redactUserSecrets(result), "", "  ")
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to marshal API result: %v", err)), nil
 	}
